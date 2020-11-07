@@ -1,7 +1,17 @@
-import React from "react";
+import React from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
 
-const App = () => {
-  return <h1>Wello</h1>;
-};
+import Routes from './routes';
+
+import GlobalStyle from './styles/global';
+
+const App: React.FC = () => (
+  <>
+    <Router>
+      <Routes />
+    </Router>
+    <GlobalStyle />
+  </>
+);
 
 export default App;
