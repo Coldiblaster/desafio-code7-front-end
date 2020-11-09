@@ -41,7 +41,6 @@ const Debt: React.FC = () => {
 
   const onFinish = async (values: Debt) => {
     const response = await api.post('/debts', values);
-
     const debtData = response.data;
 
     const [{ name }] = users.filter(
@@ -53,6 +52,7 @@ const Debt: React.FC = () => {
     setDebts([...debts, debtData]);
 
     form.resetFields();
+    setDebtId('');
   };
 
   const editForm = ({ id, idUser, debtDate, debtReason, value }: Debt) => {
@@ -72,6 +72,8 @@ const Debt: React.FC = () => {
     const newDebts = debts.filter(debt => debt.id !== idDebt && debt);
 
     setDebts(newDebts);
+    setDebtId('');
+    form.resetFields();
   };
 
   useEffect(() => {
@@ -122,8 +124,8 @@ const Debt: React.FC = () => {
             onFinish={onFinish}
           >
             <h1>Cadastro de Dívidas</h1>
-            <Row gutter={[16, 16]}>
-              <Col xs={24} sm={24} md={6} lg={8} xl={12}>
+            <Row gutter={[16, 0]}>
+              <Col xs={24} sm={24} md={12} lg={8} xl={6}>
                 <Form.Item
                   name="idUser"
                   label="Cliente"
@@ -143,7 +145,7 @@ const Debt: React.FC = () => {
                 </Form.Item>
               </Col>
 
-              <Col xs={24} sm={24} md={6} lg={8} xl={12}>
+              <Col xs={24} sm={24} md={12} lg={8} xl={8}>
                 <Form.Item
                   label="Motivo"
                   name="debtReason"
@@ -155,7 +157,7 @@ const Debt: React.FC = () => {
                 </Form.Item>
               </Col>
 
-              <Col xs={24} sm={24} md={6} lg={8} xl={6}>
+              <Col xs={24} sm={24} md={12} lg={8} xl={4}>
                 <Form.Item
                   label="Valor"
                   name="value"
@@ -165,7 +167,7 @@ const Debt: React.FC = () => {
                 </Form.Item>
               </Col>
 
-              <Col xs={24} sm={24} md={6} lg={8} xl={6}>
+              <Col xs={24} sm={24} md={12} lg={8} xl={6}>
                 <Form.Item
                   label="Data"
                   name="debtDate"
@@ -180,13 +182,18 @@ const Debt: React.FC = () => {
                 </Form.Item>
               </Col>
 
-              <Col xs={24} sm={12} md={4} lg={4} xl={4}>
+              <Col xs={24} sm={12} md={6} lg={4} xl={4}>
                 <Form.Item>
-                  <Button onClick={() => deleteDebt()}>Excluir</Button>
+                  <Button
+                    disabled={!idDebt.length && true}
+                    onClick={() => deleteDebt()}
+                  >
+                    Excluir
+                  </Button>
                 </Form.Item>
               </Col>
 
-              <Col xs={24} sm={12} md={4} lg={4} xl={4}>
+              <Col xs={24} sm={12} md={6} lg={4} xl={4}>
                 <Form.Item>
                   <Button type="primary" htmlType="submit">
                     Salvar
