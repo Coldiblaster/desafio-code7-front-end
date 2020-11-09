@@ -1,8 +1,10 @@
 import styled from 'styled-components';
 
 export const Container = styled.div`
-  background: #202583;
-  padding: 30px 0;
+  background: #151a4e;
+  height: 11vh;
+  display: flex;
+
   header {
     width: 100%;
     margin: 0 auto;
