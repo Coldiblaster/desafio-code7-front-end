@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { shade } from 'polished';
 
 export const Container = styled.div`
   height: 100%;
@@ -23,6 +24,7 @@ export const CardContainer = styled.section`
   width: 90%;
   overflow-y: scroll;
   background: #fff;
+  border-radius: 12px;
 
   ::-webkit-scrollbar {
     width: 10px;
@@ -46,7 +48,7 @@ export const CardContainer = styled.section`
 
 export const Card = styled.div`
   width: 90%;
-  background: #5d5d69;
+  background: #e05353;
   padding: 22px 32px;
   border-radius: 5px;
   margin: 10px auto;
@@ -71,7 +73,7 @@ export const Card = styled.div`
     cursor: pointer;
 
     :hover {
-      color: #202583;
+      color: ${shade(0.3, '#e05353')};
     }
   }
 `;
@@ -85,8 +87,9 @@ export const ContentForm = styled.div`
   flex: 1;
   height: 100%;
   margin-bottom: 85px;
+  border-radius: 12px;
 
-  background: #fff;
+  background: #fffcfc;
 
   form {
     margin: 15px 10px;
