@@ -1,23 +1,38 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { shade } from 'polished';
 
+interface CardProps {
+  cardExist: boolean;
+}
+
 export const Container = styled.div`
-  height: 100%;
   display: flex;
+  flex-wrap: wrap; // Quebra a linha
+  flex-direction: row;
   align-items: stretch;
-  background: #202583;
-  padding: 15px;
+  padding: 35px;
 `;
 
-export const ContentDebts = styled.div`
+export const ContentDebts = styled.div<CardProps>`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 
   width: 100%;
-  height: 89vh;
   max-width: 300px;
+  height: 80vh;
+
+  @media screen and (max-width: 592px) {
+    max-width: 100%;
+    height: 67vh;
+  }
+
+  ${props =>
+    !props.cardExist &&
+    css`
+      display: none;
+    `}
 `;
 
 export const CardContainer = styled.section`
@@ -25,6 +40,10 @@ export const CardContainer = styled.section`
   overflow-y: scroll;
   background: #fff;
   border-radius: 12px;
+
+  @media screen and (max-width: 592px) {
+    width: 94%;
+  }
 
   ::-webkit-scrollbar {
     width: 10px;
@@ -79,21 +98,20 @@ export const Card = styled.div`
 `;
 
 export const ContentForm = styled.div`
-  /* display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  align-content: flex-start; */
   flex: 1;
   height: 100%;
-  margin-bottom: 85px;
-  border-radius: 12px;
+  margin-top: -15px;
 
-  background: #fffcfc;
+  @media screen and (max-width: 592px) {
+    margin-top: 25px;
+  }
 
   form {
+    background: #fffcfc;
+    border-radius: 12px;
     margin: 15px 10px;
     text-align: center;
+    padding: 15px;
 
     h1 {
       margin-bottom: 10px;

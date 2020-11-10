@@ -40,16 +40,35 @@ const Debt: React.FC = () => {
   const [idDebt, setDebtId] = useState('');
 
   const onFinish = async (values: Debt) => {
-    const response = await api.post('/debts', values);
-    const debtData = response.data;
+    if (idDebt.length > 0) {
+      const response = await api.put(`/debts/${idDebt}`, values);
+      const debtData = response.data;
 
-    const [{ name }] = users.filter(
-      (user: User) => user.id === debtData.idUser,
-    );
+      const [{ name }] = users.filter(
+        (user: User) => user.id === debtData.idUser,
+      );
 
-    debtData.name = name;
+      debtData.name = name;
 
-    setDebts([...debts, debtData]);
+      const updateData = debts.map(debt => {
+        if (debt.id === debtData.id) return debtData;
+
+        return debt;
+      });
+
+      setDebts(updateData);
+    } else {
+      const response = await api.post('/debts', values);
+      const debtData = response.data;
+
+      const [{ name }] = users.filter(
+        (user: User) => user.id === debtData.idUser,
+      );
+
+      debtData.name = name;
+
+      setDebts([...debts, debtData]);
+    }
 
     form.resetFields();
     setDebtId('');
@@ -103,7 +122,7 @@ const Debt: React.FC = () => {
     <>
       <Header />
       <Container>
-        <ContentDebts>
+        <ContentDebts cardExist={debts.length > 0}>
           <CardContainer>
             {debts.map(debt => (
               <Card key={debt.id}>
@@ -196,7 +215,7 @@ const Debt: React.FC = () => {
               <Col xs={24} sm={12} md={6} lg={4} xl={4}>
                 <Form.Item>
                   <Button type="primary" htmlType="submit">
-                    Salvar
+                    {idDebt.length > 0 ? 'Alterar' : 'Salvar'}
                   </Button>
                 </Form.Item>
               </Col>
