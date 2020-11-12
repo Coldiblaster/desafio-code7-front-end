@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, Input, Button } from 'antd';
 import { Link, useHistory } from 'react-router-dom';
-import { FiArrowLeft, FiMail, FiUser, FiLock } from 'react-icons/fi';
+import { FiArrowLeft } from 'react-icons/fi';
 
 import { useToast } from '../../hooks/toast';
 import { useAuth } from '../../hooks/auth';
@@ -9,7 +9,7 @@ import { api } from '../../services/api';
 
 import Logo from '../../assets/logo-code7.svg';
 
-import { Container, ContentSignIn } from './styles';
+import { Container, ContentSignUp } from './styles';
 
 interface SignInFormData {
   email: string;
@@ -44,7 +44,7 @@ const SignIn: React.FC = () => {
 
   return (
     <Container>
-      <ContentSignIn>
+      <ContentSignUp>
         <div className="logo">
           <img src={Logo} alt="desafioCode7" />
         </div>
@@ -63,7 +63,7 @@ const SignIn: React.FC = () => {
             rules={[
               {
                 required: true,
-                message: 'Please input your username!',
+                message: 'Nome obrigatório!',
               },
             ]}
           >
@@ -75,7 +75,7 @@ const SignIn: React.FC = () => {
             rules={[
               {
                 required: true,
-                message: 'Please input your username!',
+                message: 'E-mail obrigatório!',
               },
             ]}
           >
@@ -88,7 +88,7 @@ const SignIn: React.FC = () => {
             rules={[
               {
                 required: true,
-                message: 'Please input your password!',
+                message: 'No mínimo 6 dígitos!',
               },
             ]}
           >
@@ -106,7 +106,7 @@ const SignIn: React.FC = () => {
           <FiArrowLeft />
           Voltar para logon
         </Link>
-      </ContentSignIn>
+      </ContentSignUp>
     </Container>
   );
 };

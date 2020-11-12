@@ -9,7 +9,7 @@ export const Container = styled.div`
   align-items: center;
 `;
 
-export const ContentSignIn = styled.div`
+export const ContentSignUp = styled.div`
   display: flex;
   flex-direction: column;
   border-radius: 12px;
@@ -19,6 +19,12 @@ export const ContentSignIn = styled.div`
     justify-content: center;
     align-items: center;
     margin-bottom: 25px;
+  }
+
+  a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   background: #a9aaae;
