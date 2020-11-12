@@ -10,10 +10,17 @@ export const Container = styled.div`
 `;
 
 export const ContentSignIn = styled.div`
-  background: white;
-  padding: 5%;
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
 
-  /* form {
-    width: 250px;
-  } */
+  .logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 25px;
+  }
+
+  background: #a9aaae;
+  padding: 3% 5%;
 `;
