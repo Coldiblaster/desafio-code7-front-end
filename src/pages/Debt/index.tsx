@@ -247,7 +247,12 @@ const Debt: React.FC = () => {
             autoComplete="off"
             onFinish={onFinish}
           >
-            <h1>Cadastro de Dívidas</h1>
+            {userId >= 0 ? (
+              <h1>Alteração de dívida</h1>
+            ) : (
+              <h1>Cadastro de Dívidas</h1>
+            )}
+
             <Row gutter={[16, 0]}>
               {userId >= 0 && (
                 <Col xs={24} sm={24} md={12} lg={8} xl={6}>
