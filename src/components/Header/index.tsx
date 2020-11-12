@@ -10,10 +10,6 @@ const Header: React.FC = () => (
   <Container>
     <header>
       <img src={Logo} alt="desafioCode7" />
-      {/* <nav>
-        <Link to="/">Listagem</Link>
-        <Link to="/import">Importar</Link>
-      </nav> */}
     </header>
   </Container>
 );

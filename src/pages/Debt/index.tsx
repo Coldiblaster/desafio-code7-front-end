@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaEdit } from 'react-icons/fa';
-import { Row, Col, Input, Form, DatePicker, Button, Select } from 'antd';
+import { Row, Col, Input, Form, DatePicker, Button, Select, Modal } from 'antd';
 import moment from 'moment';
 
 import formatValue from '../../utils/formatValue';
@@ -13,18 +13,23 @@ import {
   CardContainer,
   Card,
   ContentForm,
-  ContentCreate,
 } from './styles';
 
 const { Option } = Select;
+const { confirm: modalConfirm } = Modal;
 
 interface Debt {
   id: string;
   idUser: number;
-  name: string;
   debtReason: string;
   debtDate: Date;
   value: number;
+}
+
+interface UserDebt {
+  id: number;
+  name: string;
+  amount: number;
 }
 
 interface User {
@@ -35,6 +40,7 @@ interface User {
 const Debt: React.FC = () => {
   const [form] = Form.useForm();
 
+  const [usersDebts, setUsersDebts] = useState<UserDebt[]>([]);
   const [debts, setDebts] = useState<Debt[]>([]);
   const [users, setUser] = useState<User[]>([]);
   const [idDebt, setDebtId] = useState('');
@@ -70,11 +76,14 @@ const Debt: React.FC = () => {
       setDebts([...debts, debtData]);
     }
 
-    form.resetFields();
-    setDebtId('');
+    resetForm();
   };
 
-  const editForm = ({ id, idUser, debtDate, debtReason, value }: Debt) => {
+  const editForm = (id: string) => {
+    const [{ debtDate, debtReason, value, idUser }] = debts.filter(
+      (debt: Debt) => debt.id === id,
+    );
+
     form.setFieldsValue({
       idUser,
       debtReason,
@@ -85,14 +94,29 @@ const Debt: React.FC = () => {
     setDebtId(id);
   };
 
-  const deleteDebt = () => {
-    api.delete(`/debts/${idDebt}`);
+  const deleteDebt = async () => {
+    await api.delete(`/debts/${idDebt}`);
 
     const newDebts = debts.filter(debt => debt.id !== idDebt && debt);
 
     setDebts(newDebts);
     setDebtId('');
     form.resetFields();
+  };
+
+  const openDebts = async (idUser: number) => {
+    const response = await api.get(`/debts/user/${idUser}`);
+
+    const debtsData = response.data;
+
+    setDebts(debtsData);
+
+    resetForm();
+  };
+
+  const resetForm = () => {
+    form.resetFields();
+    setDebtId('');
   };
 
   useEffect(() => {
@@ -103,38 +127,48 @@ const Debt: React.FC = () => {
       const debtsData = response.data;
       const usersData = responseUsers.data;
 
-      const debtsFormat = debtsData.map((debt: Debt) => {
-        const [{ name }] = usersData.filter(
-          (user: User) => user.id === debt.idUser,
-        );
+      const usersDebtsData: any = [];
 
-        return { ...debt, name };
+      usersData.forEach(({ id, name }: User) => {
+        let amount = 0;
+
+        debtsData.filter((debt: Debt) => {
+          if (id === debt.idUser) {
+            amount += Number(debt.value);
+            return amount;
+          }
+
+          return false;
+        });
+
+        if (amount > 0) usersDebtsData.push({ amount, id, name });
       });
 
+      setUsersDebts(usersDebtsData);
       setUser(usersData);
-      setDebts(debtsFormat);
     }
 
     loadDebt();
-  }, []);
+  }, [debts]);
 
   return (
     <>
       <Header />
       <Container>
-        <ContentDebts cardExist={debts.length > 0}>
+        <ContentDebts cardExist={usersDebts.length > 0}>
           <CardContainer>
-            {debts.map(debt => (
-              <Card key={debt.id}>
+            {usersDebts.map(user => (
+              <Card key={user.id}>
                 <header>
-                  <p>{debt.name}</p>
-                  <FaEdit size={25} onClick={() => editForm(debt)} />
+                  <p>{user.name}</p>
+                  <FaEdit size={25} onClick={() => openDebts(user.id)} />
                 </header>
-                <h2>{formatValue(debt.value)}</h2>
+                <h2>{formatValue(user.amount)}</h2>
               </Card>
             ))}
           </CardContainer>
         </ContentDebts>
+
         <ContentForm>
           <Form
             layout="vertical"
@@ -144,6 +178,24 @@ const Debt: React.FC = () => {
           >
             <h1>Cadastro de Dívidas</h1>
             <Row gutter={[16, 0]}>
+              {debts.length > 0 && (
+                <Col xs={24} sm={24} md={12} lg={8} xl={6}>
+                  <Form.Item name="valueDebt" label="Valor dívida">
+                    <Select
+                      placeholder="Selecione uma dívida"
+                      allowClear
+                      autoFocus
+                      onChange={(id: string) => editForm(id)}
+                    >
+                      {debts.map(user => (
+                        <Option key={user.id} value={user.id}>
+                          {formatValue(user.value)}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+              )}
               <Col xs={24} sm={24} md={12} lg={8} xl={6}>
                 <Form.Item
                   name="idUser"
@@ -186,7 +238,7 @@ const Debt: React.FC = () => {
                 </Form.Item>
               </Col>
 
-              <Col xs={24} sm={24} md={12} lg={8} xl={6}>
+              <Col xs={24} sm={24} md={24} lg={16} xl={6}>
                 <Form.Item
                   label="Data"
                   name="debtDate"
@@ -201,30 +253,40 @@ const Debt: React.FC = () => {
                 </Form.Item>
               </Col>
 
-              <Col xs={24} sm={12} md={6} lg={4} xl={4}>
+              <Col xs={24} sm={8} md={8} lg={4} xl={4}>
                 <Form.Item>
                   <Button
                     disabled={!idDebt.length && true}
                     onClick={() => deleteDebt()}
+                    style={{ background: '#dc3545', color: '#fff' }}
                   >
                     Excluir
                   </Button>
                 </Form.Item>
               </Col>
 
-              <Col xs={24} sm={12} md={6} lg={4} xl={4}>
+              <Col xs={24} sm={8} md={8} lg={4} xl={4}>
                 <Form.Item>
                   <Button type="primary" htmlType="submit">
                     {idDebt.length > 0 ? 'Alterar' : 'Salvar'}
                   </Button>
                 </Form.Item>
               </Col>
+
+              <Col xs={24} sm={8} md={8} lg={4} xl={4}>
+                <Form.Item>
+                  <Button
+                    className="buttonNew"
+                    style={{ background: '#28a745', color: '#fff' }}
+                    onClick={() => resetForm()}
+                  >
+                    Novo
+                  </Button>
+                </Form.Item>
+              </Col>
             </Row>
           </Form>
         </ContentForm>
-        {/* <ContentCreate>
-          <button type="button">Novo</button>
-        </ContentCreate> */}
       </Container>
     </>
   );

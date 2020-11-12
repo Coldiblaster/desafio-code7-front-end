@@ -16,8 +16,6 @@ export const Container = styled.div`
 export const ContentDebts = styled.div<CardProps>`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
 
   width: 100%;
   max-width: 300px;
@@ -26,6 +24,8 @@ export const ContentDebts = styled.div<CardProps>`
   @media screen and (max-width: 592px) {
     max-width: 100%;
     height: 67vh;
+    align-items: center;
+    justify-content: center;
   }
 
   ${props =>
@@ -122,11 +122,4 @@ export const ContentForm = styled.div`
       margin-top: 30px;
     }
   }
-`;
-
-export const ContentCreate = styled.div`
-  display: flex;
-  justify-content: end;
-  align-items: flex-end;
-  background: red;
 `;
