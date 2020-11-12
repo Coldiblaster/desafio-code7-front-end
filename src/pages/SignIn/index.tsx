@@ -70,7 +70,7 @@ const SignIn: React.FC = () => {
               },
             ]}
           >
-            <Input />
+            <Input type="email" />
           </Form.Item>
 
           <Form.Item

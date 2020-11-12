@@ -4,7 +4,6 @@ import { Link, useHistory } from 'react-router-dom';
 import { FiArrowLeft } from 'react-icons/fi';
 
 import { useToast } from '../../hooks/toast';
-import { useAuth } from '../../hooks/auth';
 import { api } from '../../services/api';
 
 import Logo from '../../assets/logo-code7.svg';
@@ -17,7 +16,6 @@ interface SignInFormData {
 }
 
 const SignIn: React.FC = () => {
-  const { signIn } = useAuth();
   const { addToast } = useToast();
 
   const history = useHistory();

@@ -100,6 +100,8 @@ const Debt: React.FC = () => {
         });
 
         setDebts(updateData);
+        setDebts([]);
+        setUserId(-1);
 
         addToast({
           type: 'success',
@@ -126,7 +128,7 @@ const Debt: React.FC = () => {
       await handleInsert(values);
     }
 
-    resetForm();
+    form.resetFields();
   };
 
   const editForm = (id: string) => {
@@ -152,7 +154,10 @@ const Debt: React.FC = () => {
 
       setDebts(newDebts);
 
-      resetForm();
+      setDebts([]);
+      setUserId(-1);
+
+      form.resetFields();
 
       addToast({
         type: 'success',
@@ -177,17 +182,20 @@ const Debt: React.FC = () => {
     setDebts(debtsData);
     setUserId(idUser);
 
-    resetForm();
+    addToast({
+      type: 'info',
+      title: 'Dívida(s) carregada(s) com sucesso!',
+      description:
+        'Clique no campo de dívidas cadastradas e selecione uma dívida para alteração',
+    });
+
+    form.resetFields();
   };
 
   const resetForm = () => {
-    form.resetFields();
     setDebtId('');
-
-    if (debts.length > 0) {
-      setDebts([]);
-      setUserId(-1);
-    }
+    setDebts([]);
+    setUserId(-1);
   };
 
   useEffect(() => {
@@ -256,10 +264,9 @@ const Debt: React.FC = () => {
             <Row gutter={[16, 0]}>
               {userId >= 0 && (
                 <Col xs={24} sm={24} md={12} lg={8} xl={6}>
-                  <Form.Item name="valueDebt" label="Valor dívida">
+                  <Form.Item name="valueDebt" label="Dívidas cadastradas">
                     <Select
                       placeholder="Selecione uma dívida"
-                      allowClear
                       autoFocus
                       onChange={(id: string) => editForm(id)}
                     >
@@ -278,11 +285,7 @@ const Debt: React.FC = () => {
                   label="Cliente"
                   rules={[{ required: true, message: 'Selecione um cliente!' }]}
                 >
-                  <Select
-                    placeholder="Selecione um cliente"
-                    // onChange={this.onGenderChange}
-                    allowClear
-                  >
+                  <Select placeholder="Selecione um cliente" allowClear>
                     {users.map(user => (
                       <Option key={user.id} value={user.id}>
                         {user.name}
