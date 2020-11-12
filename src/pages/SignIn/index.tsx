@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Input, Button, Col } from 'antd';
+import { Form, Input, Button } from 'antd';
 
 import { Link, useHistory } from 'react-router-dom';
 
