@@ -1,17 +1,28 @@
 import React from 'react';
 
-// import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { Container } from './styles';
 
+import { useAuth } from '../../hooks/auth';
+
 import Logo from '../../assets/logo-code7.svg';
 
-const Header: React.FC = () => (
-  <Container>
-    <header>
-      <img src={Logo} alt="desafioCode7" />
-    </header>
-  </Container>
-);
+const Header: React.FC = () => {
+  const { signOut } = useAuth();
+
+  return (
+    <Container>
+      <header>
+        <img src={Logo} alt="desafioCode7" />
+        <nav>
+          <button type="button" onClick={() => signOut()}>
+            Logout
+          </button>
+        </nav>
+      </header>
+    </Container>
+  );
+};
 
 export default Header;

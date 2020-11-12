@@ -5,10 +5,20 @@ export const Container = styled.div`
   height: 11vh;
   display: flex;
 
+  button {
+    padding: 5px;
+    border-radius: 5px;
+    background: #fff;
+
+    :hover {
+      background: #e05353;
+    }
+  }
+
   header {
     width: 100%;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 65px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -26,6 +36,12 @@ export const Container = styled.div`
           opacity: 0.6;
         }
       }
+    }
+
+    @media screen and (max-width: 592px) {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
   }
 `;
