@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FaEdit } from 'react-icons/fa';
-import { Row, Col, Input, Form, DatePicker, Button, Select, Modal } from 'antd';
+import { Row, Col, Input, Form, DatePicker, Button, Select } from 'antd';
 import moment from 'moment';
 
 import formatValue from '../../utils/formatValue';
 import Header from '../../components/Header';
+import { useToast } from '../../hooks/toast';
 import { api, apiExtern } from '../../services/api';
 
 import {
@@ -16,7 +17,6 @@ import {
 } from './styles';
 
 const { Option } = Select;
-const { confirm: modalConfirm } = Modal;
 
 interface Debt {
   id: string;
@@ -40,40 +40,90 @@ interface User {
 const Debt: React.FC = () => {
   const [form] = Form.useForm();
 
+  const { addToast } = useToast();
+
   const [usersDebts, setUsersDebts] = useState<UserDebt[]>([]);
   const [debts, setDebts] = useState<Debt[]>([]);
   const [users, setUser] = useState<User[]>([]);
-  const [idDebt, setDebtId] = useState('');
+  const [debtId, setDebtId] = useState('');
+  const [userId, setUserId] = useState(-1);
+
+  const handleInsert = useCallback(
+    async (data: Debt) => {
+      try {
+        const response = await api.post('/debts', data);
+
+        const debtData = response.data;
+
+        const [{ name }] = users.filter(
+          (user: User) => user.id === debtData.idUser,
+        );
+
+        debtData.name = name;
+
+        setDebts([...debts, debtData]);
+
+        addToast({
+          type: 'success',
+          title: 'Cadastro realizado!',
+          description:
+            'Você já pode visualizar a dívida no canto esquerdo da tela.',
+        });
+      } catch (err) {
+        addToast({
+          type: 'error',
+          title: 'Erro na gravação',
+          description:
+            'Ocorreu um erro ao tentar efetuar o cadastro, cheque os dados e tente novamente.',
+        });
+      }
+    },
+    [debts, users, addToast],
+  );
+
+  const handleUpdate = useCallback(
+    async (data: Debt) => {
+      try {
+        const response = await api.put(`/debts/${debtId}`, data);
+        const debtData = response.data;
+
+        const [{ name }] = users.filter(
+          (user: User) => user.id === debtData.idUser,
+        );
+
+        debtData.name = name;
+
+        const updateData = debts.map(debt => {
+          if (debt.id === debtData.id) return debtData;
+
+          return debt;
+        });
+
+        setDebts(updateData);
+
+        addToast({
+          type: 'success',
+          title: 'Alteração realizado!',
+          description:
+            'Você já pode visualizar alteração no canto esquerdo da tela.',
+        });
+      } catch (err) {
+        addToast({
+          type: 'error',
+          title: 'Erro na alteração',
+          description:
+            'Ocorreu um erro ao tentar efetuar a alteração, cheque os dados e tente novamente.',
+        });
+      }
+    },
+    [debts, users, debtId, addToast],
+  );
 
   const onFinish = async (values: Debt) => {
-    if (idDebt.length > 0) {
-      const response = await api.put(`/debts/${idDebt}`, values);
-      const debtData = response.data;
-
-      const [{ name }] = users.filter(
-        (user: User) => user.id === debtData.idUser,
-      );
-
-      debtData.name = name;
-
-      const updateData = debts.map(debt => {
-        if (debt.id === debtData.id) return debtData;
-
-        return debt;
-      });
-
-      setDebts(updateData);
+    if (debtId.length > 0) {
+      await handleUpdate(values);
     } else {
-      const response = await api.post('/debts', values);
-      const debtData = response.data;
-
-      const [{ name }] = users.filter(
-        (user: User) => user.id === debtData.idUser,
-      );
-
-      debtData.name = name;
-
-      setDebts([...debts, debtData]);
+      await handleInsert(values);
     }
 
     resetForm();
@@ -95,13 +145,28 @@ const Debt: React.FC = () => {
   };
 
   const deleteDebt = async () => {
-    await api.delete(`/debts/${idDebt}`);
+    try {
+      await api.delete(`/debts/${debtId}`);
 
-    const newDebts = debts.filter(debt => debt.id !== idDebt && debt);
+      const newDebts = debts.filter(debt => debt.id !== debtId && debt);
 
-    setDebts(newDebts);
-    setDebtId('');
-    form.resetFields();
+      setDebts(newDebts);
+
+      resetForm();
+
+      addToast({
+        type: 'success',
+        title: 'Exclusão realizado!',
+        description: 'Dívida excluida com sucesso',
+      });
+    } catch (err) {
+      addToast({
+        type: 'error',
+        title: 'Erro na exclusão',
+        description:
+          'Ocorreu um erro ao tentar efetuar a exclusão, cheque os dados e tente novamente.',
+      });
+    }
   };
 
   const openDebts = async (idUser: number) => {
@@ -110,6 +175,7 @@ const Debt: React.FC = () => {
     const debtsData = response.data;
 
     setDebts(debtsData);
+    setUserId(idUser);
 
     resetForm();
   };
@@ -117,6 +183,11 @@ const Debt: React.FC = () => {
   const resetForm = () => {
     form.resetFields();
     setDebtId('');
+
+    if (debts.length > 0) {
+      setDebts([]);
+      setUserId(-1);
+    }
   };
 
   useEffect(() => {
@@ -127,7 +198,7 @@ const Debt: React.FC = () => {
       const debtsData = response.data;
       const usersData = responseUsers.data;
 
-      const usersDebtsData: any = [];
+      const usersDebtsData: UserDebt[] = [];
 
       usersData.forEach(({ id, name }: User) => {
         let amount = 0;
@@ -178,7 +249,7 @@ const Debt: React.FC = () => {
           >
             <h1>Cadastro de Dívidas</h1>
             <Row gutter={[16, 0]}>
-              {debts.length > 0 && (
+              {userId >= 0 && (
                 <Col xs={24} sm={24} md={12} lg={8} xl={6}>
                   <Form.Item name="valueDebt" label="Valor dívida">
                     <Select
@@ -256,9 +327,9 @@ const Debt: React.FC = () => {
               <Col xs={24} sm={8} md={8} lg={4} xl={4}>
                 <Form.Item>
                   <Button
-                    disabled={!idDebt.length && true}
+                    disabled={!debtId.length && true}
                     onClick={() => deleteDebt()}
-                    style={{ background: '#dc3545', color: '#fff' }}
+                    style={{ background: '#d4616d', color: '#fff' }}
                   >
                     Excluir
                   </Button>
@@ -268,7 +339,7 @@ const Debt: React.FC = () => {
               <Col xs={24} sm={8} md={8} lg={4} xl={4}>
                 <Form.Item>
                   <Button type="primary" htmlType="submit">
-                    {idDebt.length > 0 ? 'Alterar' : 'Salvar'}
+                    {debtId.length > 0 ? 'Alterar' : 'Salvar'}
                   </Button>
                 </Form.Item>
               </Col>
